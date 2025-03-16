@@ -44,7 +44,7 @@
 </table>
 
 <script>
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbw_SPt7mVpuv0X3XNgmW16NF5VGtJX0PKqx16iBnku6Xgqn8w6eqqHrWY-mz9TUlJ6O/exec';  // Replace with your actual Apps Script Web App URL
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwr-yolShR1hKskSIfckuSEBrcU5Btm8hBW92t6CDZUwwhueVnwruu4BhBX1CBe9Ecw/exec';  // Replace with your actual Apps Script Web App URL
 
 async function fetchData() {
     try {
@@ -65,6 +65,9 @@ async function fetchData() {
                 <td>${person.name}</td>
                 <td>${person.phone}</td>
                 <td>${person.message}</td>
+                <td>${person.gstin}</td>
+                <td>${person.busname}</td>
+                <td>${person.status}</td>
             `;
             tableBody.appendChild(row);
         });
