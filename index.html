@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bulk GST WhatsApp Reminder Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        ul {
+            padding: 0;
+        }
+        li {
+            list-style: none;
+            margin: 5px 0;
+        }
+        .log {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Bulk GST WhatsApp Reminder Sender</h2>
+<button onclick="fetchAndSendAll()">Fetch Data & Send All Messages</button>
+
+<div class="log" id="logBox">
+    <strong>Log:</strong>
+    <ul id="logList"></ul>
+</div>
+
+<script>
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbw_SPt7mVpuv0X3XNgmW16NF5VGtJX0PKqx16iBnku6Xgqn8w6eqqHrWY-mz9TUlJ6O/exec';  // Replace with your actual Apps Script Web App URL
+
+let messageQueue = [];
+let currentIndex = 0;
+
+async function fetchAndSendAll() {
+    try {
+        const response = await fetch(SHEET_API_URL);
+        const data = await response.json();
+
+        if (data.length === 0) {
+            alert('No data found.');
+            return;
+        }
+
+        messageQueue = data;
+        currentIndex = 0;
+
+        if (confirm(`You are about to send reminders to ${data.length} clients. Proceed?`)) {
+            sendNextMessage();
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        alert('Failed to fetch data. Check the console for details.');
+    }
+}
+
+function sendNextMessage() {
+    if (currentIndex >= messageQueue.length) {
+        logMessage("✅ All messages processed.");
+        alert("All reminders processed.");
+        return;
+    }
+
+    const person = messageQueue[currentIndex];
+    const whatsappLink = `https://wa.me/${person.phone}?text=${encodeURIComponent(person.message)}`;
+
+    logMessage(`Opening WhatsApp for ${person.name} (${person.phone})...`);
+
+    window.open(whatsappLink, '_blank');
+
+    currentIndex++;
+
+    // Automatically process the next message after a delay (3 seconds)
+    setTimeout(sendNextMessage, 500);
+}
+
+function logMessage(msg) {
+    const logList = document.getElementById('logList');
+    const logItem = document.createElement('li');
+    logItem.textContent = msg;
+    logList.appendChild(logItem);
+
+    // Auto-scroll log to bottom
+    const logBox = document.getElementById('logBox');
+    logBox.scrollTop = logBox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
