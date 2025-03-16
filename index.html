@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Bulk GST WhatsApp Reminder Sender</title>
+    <title>GST Reminder Fetcher</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,40 +12,41 @@
             font-size: 16px;
             cursor: pointer;
         }
-        ul {
-            padding: 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        li {
-            list-style: none;
-            margin: 5px 0;
-        }
-        .log {
-            margin-top: 15px;
-            padding: 10px;
-            background: #f0f0f0;
+        th, td {
             border: 1px solid #ddd;
-            height: 200px;
-            overflow-y: auto;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
         }
     </style>
 </head>
 <body>
 
-<h2>Bulk GST WhatsApp Reminder Sender</h2>
-<button onclick="fetchAndSendAll()">Fetch Data & Send All Messages</button>
+<h2>GST Reminder Data</h2>
+<button onclick="fetchData()">Fetch Data</button>
 
-<div class="log" id="logBox">
-    <strong>Log:</strong>
-    <ul id="logList"></ul>
-</div>
+<table id="dataTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
 <script>
 const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbw_SPt7mVpuv0X3XNgmW16NF5VGtJX0PKqx16iBnku6Xgqn8w6eqqHrWY-mz9TUlJ6O/exec';  // Replace with your actual Apps Script Web App URL
 
-let messageQueue = [];
-let currentIndex = 0;
-
-async function fetchAndSendAll() {
+async function fetchData() {
     try {
         const response = await fetch(SHEET_API_URL);
         const data = await response.json();
@@ -55,47 +56,23 @@ async function fetchAndSendAll() {
             return;
         }
 
-        messageQueue = data;
-        currentIndex = 0;
+        const tableBody = document.querySelector("#dataTable tbody");
+        tableBody.innerHTML = ""; // Clear previous data
 
-        if (confirm(`You are about to send reminders to ${data.length} clients. Proceed?`)) {
-            sendNextMessage();
-        }
+        data.forEach(person => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${person.name}</td>
+                <td>${person.phone}</td>
+                <td>${person.message}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
     } catch (error) {
         console.error('Error fetching data:', error);
         alert('Failed to fetch data. Check the console for details.');
     }
-}
-
-function sendNextMessage() {
-    if (currentIndex >= messageQueue.length) {
-        logMessage("✅ All messages processed.");
-        alert("All reminders processed.");
-        return;
-    }
-
-    const person = messageQueue[currentIndex];
-    const whatsappLink = `https://wa.me/${person.phone}?text=${encodeURIComponent(person.message)}`;
-
-    logMessage(`Opening WhatsApp for ${person.name} (${person.phone})...`);
-
-    window.open(whatsappLink, '_blank');
-
-    currentIndex++;
-
-    // Automatically process the next message after a delay (3 seconds)
-    setTimeout(sendNextMessage, 500);
-}
-
-function logMessage(msg) {
-    const logList = document.getElementById('logList');
-    const logItem = document.createElement('li');
-    logItem.textContent = msg;
-    logList.appendChild(logItem);
-
-    // Auto-scroll log to bottom
-    const logBox = document.getElementById('logBox');
-    logBox.scrollTop = logBox.scrollHeight;
 }
 </script>
 
