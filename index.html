@@ -79,7 +79,7 @@ async function fetchData() {
             const status = person.status || '';
 
             // Pre-filled WhatsApp message
-            const message = encodeURIComponent(`Hello ${name},\n\nYour pending work: ${work}\nRemark: ${remark}\n\nPlease update the status.`);
+            const message = encodeURIComponent(`Hello ${name}`);
 
             const whatsappLink = phone 
                 ? `https://wa.me/${phone}?text=${message}`
