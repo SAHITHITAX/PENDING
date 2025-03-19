@@ -17,11 +17,16 @@
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    max-width: 50px; /* Limits the width */
+    word-wrap: break-word; /* Ensures text wraps */
+    overflow-wrap: break-word; /* Alternative for better compatibility */
+    white-space: normal; /* Allows wrapping */
+}
+
         th {
             background-color: #f4f4f4;
         }
