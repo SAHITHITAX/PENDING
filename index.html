@@ -7,35 +7,36 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    max-width: 50px; /* Limits the width */
-    word-wrap: break-word; /* Ensures text wraps */
-    overflow-wrap: break-word; /* Alternative for better compatibility */
-    white-space: normal; /* Allows wrapping */
-}
-
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            max-width: 150px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
         th {
             background-color: #f4f4f4;
+        }
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-<h2>Pending works</h2>
-
+<h2>Pending Works</h2>
 
 <table id="dataTable">
     <thead>
@@ -44,49 +45,72 @@ th, td {
             <th>Phone</th>
             <th>Work</th>
             <th>Remark</th>
-            <th>assign</th>
-            <th>status</th>
-          
+            <th>Assign</th>
+            <th>Status</th>
+            <th>WhatsApp</th> <!-- New WhatsApp column -->
         </tr>
     </thead>
     <tbody></tbody>
 </table>
 
 <script>
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbybx3FoLWGliGW1cXp6rG7fwfNzadWiNvres9h0Ia1LULhqbhR-KdMWROJJwN7eB2ld/exec';  // Replace with your actual Apps Script Web App URL
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbybx3FoLWGliGW1cXp6rG7fwfNzadWiNvres9h0Ia1LULhqbhR-KdMWROJJwN7eB2ld/exec'; 
 
 async function fetchData() {
     try {
         const response = await fetch(SHEET_API_URL);
-        const data = await response.json();
+        if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
 
-        if (data.length === 0) {
+        const data = await response.json();
+        if (!Array.isArray(data) || data.length === 0) {
             alert('No data found.');
             return;
         }
 
         const tableBody = document.querySelector("#dataTable tbody");
-        tableBody.innerHTML = ""; // Clear previous data
+        tableBody.innerHTML = ""; 
 
         data.forEach(person => {
+            const phone = person.phone || '';
+            const name = person.name || '';
+            const work = person.work || person.gstin || '';
+            const remark = person.remark || '';
+            const assign = person.assign || person.busname || '';
+            const status = person.status || '';
+
+            // Pre-filled WhatsApp message
+            const message = encodeURIComponent(`Hello ${name},\n\nYour pending work: ${work}\nRemark: ${remark}\n\nPlease update the status.`);
+
+            const whatsappLink = phone 
+                ? `https://wa.me/${phone}?text=${message}`
+                : '#';
+
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>${person.name}</td>
-                <td>${person.phone}</td>
-                <td>${person.gstin}</td>
-                <td>${person.remark}</td>
-                <td>${person.busname}</td>
-                <td>${person.status}</td>
+                <td>${name}</td>
+                <td>${phone}</td>
+                <td>${work}</td>
+                <td>${remark}</td>
+                <td>${assign}</td>
+                <td>${status}</td>
+                <td>
+                    <a href="${whatsappLink}" target="_blank">
+                        <button class="whatsapp-btn">WhatsApp</button>
+                    </a>
+                </td>
             `;
             tableBody.appendChild(row);
         });
 
     } catch (error) {
         console.error('Error fetching data:', error);
-        alert('Failed to fetch data. Check the console for details.');
+        alert('Failed to fetch data. Check console for details.');
     }
 }
-    fetchData()
+
+// Fetch data initially and refresh every 60 seconds
+fetchData();
+setInterval(fetchData, 60000);
 </script>
 
 </body>
