@@ -79,11 +79,15 @@ async function fetchData() {
             const status = person.status || '';
 
             // Pre-filled WhatsApp message
-            const message = encodeURIComponent(`Hello ${name},\n\nYour pending work: ${work}\nRemark: ${remark}\n\nPlease update the status.`);
+           const phone = person.phone.replace(/\D/g, ''); // Remove non-numeric characters
 
-            const whatsappLink = phone 
-                ? `https://wa.me/${phone}?text=${message}`
-                : '#';
+if (phone.length < 10) {
+    whatsappLink = '#'; // Invalid phone number, disable link
+} else {
+    const message = encodeURIComponent(`Hello ${name},\n\nYour pending work: ${work}\nRemark: ${remark}\n\nPlease update the status.`);
+    whatsappLink = `https://wa.me/${phone}?text=${message}`;
+}
+
 
             const row = document.createElement("tr");
             row.innerHTML = `
@@ -93,11 +97,12 @@ async function fetchData() {
                 <td>${remark}</td>
                 <td>${assign}</td>
                 <td>${status}</td>
-                <td>
-                    <a href="${whatsappLink}" target="_blank">
-                        <button class="whatsapp-btn">WhatsApp</button>
-                    </a>
-                </td>
+              <td>
+    <a href="${whatsappLink}" target="_blank">
+        <button class="whatsapp-btn" ${phone.length < 10 ? 'disabled' : ''}>WhatsApp</button>
+    </a>
+</td>
+
             `;
             tableBody.appendChild(row);
         });
